@@ -1,4 +1,3 @@
-from Usuario import Estudiante, Docente
 from datetime import datetime, timedelta
 
 class Prestamo:
@@ -12,17 +11,17 @@ class Prestamo:
         self.renovaciones = 0
 
     def calcular_fecha_devolucion(self):
-        if isinstance(self.usuario, Estudiante):
-            return self.fecha_prestamo + timedelta(days=Estudiante.DIAS_PRESTAMO)
-        elif isinstance(self.usuario, Docente):
-            return self.fecha_prestamo + timedelta(days=Docente.DIAS_MIN_PRESTAMO)
+        if self.usuario.tipo == "estudiante":
+            return self.fecha_prestamo + timedelta(days=7)
+        elif self.usuario.tipo == "docente":
+            return self.fecha_prestamo + timedelta(days=20)
 
     def renovar(self):
-        if isinstance(self.usuario, Estudiante) and self.renovaciones < 1:
-            self.fecha_devolucion += timedelta(days=Estudiante.RENOVACION_MAX_DIAS)
+        if self.usuario.tipo == "estudiante" and self.renovaciones < 1:
+            self.fecha_devolucion += timedelta(days=3)
             self.renovaciones += 1
-        elif isinstance(self.usuario, Docente) and self.renovaciones < Docente.RENOVACIONES_MAX:
-            self.fecha_devolucion += timedelta(days=Docente.DIAS_MIN_PRESTAMO)
+        elif self.usuario.tipo == "docente" and self.renovaciones < 3:
+            self.fecha_devolucion += timedelta(days=7)
             self.renovaciones += 1
 
     def retrasado(self):

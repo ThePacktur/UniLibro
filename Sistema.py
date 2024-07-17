@@ -1,47 +1,41 @@
-from Usuario import Estudiante, Docente
-from Libro import Libro
-from Prestamo import Prestamo
-from datetime import datetime
-
 class Sistema:
     def __init__(self):
-        self.usuarios = {}
         self.libros = {}
-
-    def registrar_usuario(self, tipo, nombre, rut, contacto):
-        if tipo == "estudiante":
-            usuario = Estudiante(nombre, rut, contacto)
-        elif tipo == "docente":
-            usuario = Docente(nombre, rut, contacto)
-        self.usuarios[rut] = usuario
+        self.usuarios = {}
+        self.prestamos = {}
+        self.multa = {}
 
     def registrar_libro(self, codigo, titulo, autor, stock):
-        libro = Libro(codigo, titulo, autor, stock)
-        self.libros[codigo] = libro
+        self.libros[codigo] = {'titulo': titulo, 'autor': autor, 'stock': stock}
+
+    def registrar_usuario(self, tipo, nombre, rut, contacto):
+        self.usuarios[rut] = {'tipo': tipo, 'nombre': nombre, 'contacto': contacto, 'multa': 0}
 
     def realizar_prestamo(self, rut, codigo_libro):
-        usuario = self.usuarios.get(rut)
-        libro = self.libros.get(codigo_libro)
-        if usuario and libro and libro.prestamo_disponible() and usuario.puede_prestar():
-            fecha_prestamo = datetime.now().date()
-            prestamo = Prestamo(libro, usuario, fecha_prestamo)
-            usuario.agregar_prestamo(prestamo)
-            libro.registrar_prestamo(prestamo)
-            return prestamo
-        return None
+        if rut in self.usuarios and codigo_libro in self.libros and self.libros[codigo_libro]['stock'] > 0:
+            self.libros[codigo_libro]['stock'] -= 1
+            self.prestamos[(rut, codigo_libro)] = True
+            return True
+        return False
+
+    def devolver_prestamo(self, rut, codigo_libro):
+        if (rut, codigo_libro) in self.prestamos:
+            self.libros[codigo_libro]['stock'] += 1
+            del self.prestamos[(rut, codigo_libro)]
+            return True
+        return False
 
     def buscar_usuario(self, rut):
-        return self.usuarios.get(rut)
-
-    def buscar_libro(self, codigo):
-        return self.libros.get(codigo)
+        return self.usuarios.get(rut, None)
 
     def registrar_pago_multa(self, rut):
-        usuario = self.usuarios.get(rut)
-        if usuario:
-            usuario.multa = 0
+        if rut in self.usuarios:
+            self.usuarios[rut]['multa'] = 0
 
     def modificar_stock(self, codigo_libro, nuevo_stock):
-        libro = self.libros.get(codigo_libro)
-        if libro:
-            libro.stock = nuevo_stock
+        if codigo_libro in self.libros:
+            self.libros[codigo_libro]['stock'] = nuevo_stock
+
+    def aplicar_multa(self, rut, monto_multa):
+        if rut in self.usuarios:
+            self.usuarios[rut]['multa'] += monto_multa
