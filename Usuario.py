@@ -1,9 +1,10 @@
 class Usuario:
-    def __init__(self, nombre, rut, contacto, tipo):
+    def __init__(self, nombre, rut, contacto, tipo, contrasena):
         self.nombre = nombre
         self.rut = rut
         self.contacto = contacto
         self.tipo = tipo
+        self.contrasena = contrasena
         self.prestamos = []
         self.multa = 0
 
